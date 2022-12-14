@@ -38,11 +38,28 @@ namespace DashboardDoorfl.Controllers
         }
 
         [HttpPost]
-        public ActionResult Index(DateTime start, DateTime end)
+        public async Task<ActionResult> Index(DateTime start, DateTime end, string reciver, string regNum)
         {
-            string startDate = start.ToString("dd-MM-yyyy");
-            string endDate = end.ToString("dd-MM-yyyy");
-            var response = _context.IncomingMessages.Where(x => x.RegDate >= start && x.RegDate <= end).ToList();
+
+            var response = await _context.IncomingMessages.ToListAsync();
+
+            if (!String.IsNullOrEmpty(reciver))
+            {
+                response = response.Where(x => x.Reciever.Contains(reciver)).ToList();
+            }
+            if(start > DateTime.MinValue)
+            {
+                response = response.Where(x => x.RegDate == start).ToList();
+            }
+            if(end > DateTime.MinValue && start > DateTime.MinValue)
+            {
+                response = response.Where(x => x.RegDate >= start && x.RegDate <= end).ToList();
+            }
+            if (!String.IsNullOrEmpty(regNum))
+            {
+                response = response.Where(x => x.RegNum.Contains(regNum)).ToList();
+            }
+
             return View(response);
 
         }
